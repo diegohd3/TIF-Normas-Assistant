@@ -118,6 +118,7 @@ docker compose up --build
 Servicios:
 - API: `http://localhost:8000`
 - Swagger: `http://localhost:8000/docs`
+- UI dummy de pruebas: `http://localhost:8000/ui`
 - PostgreSQL: `localhost:5432`
 
 Compose ejecuta `alembic upgrade head` al iniciar backend.

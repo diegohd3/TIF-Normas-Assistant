@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TIF Normas Assistant - UI Dummy</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --line: #d7e0ea;
+        --text: #17212b;
+        --muted: #5b6b7a;
+        --primary: #0d6efd;
+        --primary-dark: #0a58ca;
+        --ok: #067d3d;
+        --error: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(165deg, #e8eff8 0%, #f8fafc 55%, #eef4fb 100%);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1180px;
+        margin: 24px auto;
+        padding: 0 16px 32px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .subtitle {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 10px 22px rgba(13, 35, 58, 0.07);
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .row.wrap {
+        flex-wrap: wrap;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 9px 10px;
+        background: #fff;
+      }
+
+      textarea {
+        min-height: 95px;
+        resize: vertical;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: var(--primary);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--primary-dark);
+      }
+
+      button:disabled {
+        opacity: 0.65;
+        cursor: default;
+      }
+
+      .mono {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+      }
+
+      .output {
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: #f9fbfd;
+        min-height: 76px;
+        max-height: 300px;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 13px;
+      }
+
+      .status.ok {
+        color: var(--ok);
+      }
+
+      .status.error {
+        color: var(--error);
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>UI Dummy de Pruebas</h1>
+      <p class="subtitle">
+        Interfaz rápida para validar endpoints del backend TIF Normas Assistant.
+      </p>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Salud del API</h2>
+          <div class="row">
+            <button id="btnHealth">Probar /health</button>
+          </div>
+          <div id="healthStatus" class="status"></div>
+          <div id="healthOutput" class="output mono"></div>
+        </section>
+
+        <section class="card">
+          <h2>Normas</h2>
+          <div class="row wrap">
+            <button id="btnNormas">Cargar /normas</button>
+            <span id="normasCount" class="small"></span>
+          </div>
+          <div id="normasOutput" class="output mono"></div>
+        </section>
+
+        <section class="card">
+          <h2>Búsqueda</h2>
+          <label for="searchQuery">Palabras clave</label>
+          <input id="searchQuery" value="inspeccion ante mortem" />
+
+          <div class="row">
+            <div style="flex: 1">
+              <label for="searchNorma">Norma (opcional)</label>
+              <select id="searchNorma"></select>
+            </div>
+            <div style="width: 110px">
+              <label for="searchTopK">Top K</label>
+              <input id="searchTopK" type="number" value="5" min="1" max="20" />
+            </div>
+          </div>
+
+          <button id="btnSearch">Probar /articulos/search</button>
+          <div id="searchStatus" class="status"></div>
+          <div id="searchOutput" class="output mono"></div>
+        </section>
+
+        <section class="card">
+          <h2>Chat</h2>
+          <label for="chatQuestion">Pregunta</label>
+          <textarea id="chatQuestion">
+Que exige la NOM-009 sobre inspeccion ante-mortem y animales sospechosos?
+          </textarea>
+
+          <div class="row">
+            <div style="flex: 1">
+              <label for="chatNorma">Norma (opcional)</label>
+              <select id="chatNorma"></select>
+            </div>
+            <div style="width: 110px">
+              <label for="chatTopK">Top K</label>
+              <input id="chatTopK" type="number" value="5" min="1" max="20" />
+            </div>
+          </div>
+
+          <div class="row wrap">
+            <label style="display: flex; gap: 6px; align-items: center; margin: 0">
+              <input id="useLlm" type="checkbox" checked style="width: auto" />
+              usar LLM (OpenAI)
+            </label>
+            <label style="display: flex; gap: 6px; align-items: center; margin: 0">
+              endpoint:
+              <select id="chatEndpoint" style="width: auto">
+                <option value="/chat">/chat</option>
+                <option value="/chat/query">/chat/query</option>
+              </select>
+            </label>
+          </div>
+
+          <button id="btnChat">Probar chat</button>
+          <div id="chatStatus" class="status"></div>
+          <div id="chatOutput" class="output mono"></div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const emptyOption = '<option value="">(sin filtro)</option>';
+      let normasCache = [];
+
+      function safeStringify(payload) {
+        try {
+          return JSON.stringify(payload, null, 2);
+        } catch {
+          return String(payload);
+        }
+      }
+
+      function setStatus(target, ok, text) {
+        target.className = ok ? "status ok" : "status error";
+        target.textContent = text;
+      }
+
+      async function apiRequest(url, options = {}) {
+        const response = await fetch(url, options);
+        const text = await response.text();
+        let data = text;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // no-op
+        }
+
+        if (!response.ok) {
+          const detail = typeof data === "object" ? safeStringify(data) : String(data);
+          throw new Error(`${response.status} ${response.statusText}\n${detail}`);
+        }
+        return data;
+      }
+
+      function fillNormaSelect(selectId) {
+        const select = $(selectId);
+        select.innerHTML = emptyOption;
+        for (const norma of normasCache) {
+          const option = document.createElement("option");
+          option.value = norma.codigo;
+          option.textContent = `${norma.codigo} (${norma.total_articulos})`;
+          select.appendChild(option);
+        }
+      }
+
+      async function loadNormas() {
+        const output = $("normasOutput");
+        const status = $("normasCount");
+        output.textContent = "Cargando...";
+        try {
+          normasCache = await apiRequest("/normas");
+          status.textContent = `${normasCache.length} norma(s)`;
+          output.textContent = safeStringify(normasCache);
+          fillNormaSelect("searchNorma");
+          fillNormaSelect("chatNorma");
+        } catch (error) {
+          status.textContent = "error";
+          output.textContent = error.message;
+        }
+      }
+
+      $("btnHealth").addEventListener("click", async () => {
+        const out = $("healthOutput");
+        const status = $("healthStatus");
+        out.textContent = "Consultando...";
+        try {
+          const data = await apiRequest("/health");
+          setStatus(status, true, "API OK");
+          out.textContent = safeStringify(data);
+        } catch (error) {
+          setStatus(status, false, "Error en health");
+          out.textContent = error.message;
+        }
+      });
+
+      $("btnNormas").addEventListener("click", loadNormas);
+
+      $("btnSearch").addEventListener("click", async () => {
+        const q = $("searchQuery").value.trim();
+        const norma = $("searchNorma").value;
+        const topK = Number($("searchTopK").value || 5);
+        const out = $("searchOutput");
+        const status = $("searchStatus");
+
+        if (q.length < 3) {
+          setStatus(status, false, "La consulta debe tener al menos 3 caracteres.");
+          return;
+        }
+
+        const params = new URLSearchParams({ q, top_k: String(topK) });
+        if (norma) params.append("norma_codigo", norma);
+
+        out.textContent = "Buscando...";
+        try {
+          const data = await apiRequest(`/articulos/search?${params.toString()}`);
+          setStatus(status, true, `Resultados: ${data.results?.length || 0}`);
+          out.textContent = safeStringify(data);
+        } catch (error) {
+          setStatus(status, false, "Error en búsqueda");
+          out.textContent = error.message;
+        }
+      });
+
+      $("btnChat").addEventListener("click", async () => {
+        const question = $("chatQuestion").value.trim();
+        const norma = $("chatNorma").value;
+        const topK = Number($("chatTopK").value || 5);
+        const useLlm = $("useLlm").checked;
+        const endpoint = $("chatEndpoint").value;
+        const out = $("chatOutput");
+        const status = $("chatStatus");
+
+        if (question.length < 3) {
+          setStatus(status, false, "La pregunta debe tener al menos 3 caracteres.");
+          return;
+        }
+
+        const payload = { question, top_k: topK, use_llm: useLlm };
+        if (norma) payload.norma_codigo = norma;
+
+        out.textContent = "Consultando chat...";
+        try {
+          const data = await apiRequest(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          setStatus(
+            status,
+            true,
+            `OK | llm_used=${data.llm_used} | refs=${(data.references || []).length}`
+          );
+          out.textContent = safeStringify(data);
+        } catch (error) {
+          setStatus(status, false, "Error en chat");
+          out.textContent = error.message;
+        }
+      });
+
+      loadNormas();
+    </script>
+  </body>
+</html>
+
