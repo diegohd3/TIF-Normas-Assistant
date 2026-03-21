@@ -6,13 +6,13 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_app_settings, get_db_session
 from app.core.config import Settings
 from app.repositories import ArticuloRepository
-from app.schemas.chat import ChatRequest, ChatResponse
-from app.services import ChatService, KeywordRetrievalService
+from app.schemas.chat import ChatQueryResponse, ChatRequest, ChatResponse
+from app.services import ChatService, ComplianceAssistantService, KeywordRetrievalService
 
 router = APIRouter(tags=["chat"])
 
 
-def _run_chat(
+def _run_chat_legacy(
     payload: ChatRequest,
     db: Session,
     settings: Settings,
@@ -60,14 +60,22 @@ def chat_legacy(
     db: Session = Depends(get_db_session),
     settings: Settings = Depends(get_app_settings),
 ) -> ChatResponse:
-    return _run_chat(payload=payload, db=db, settings=settings)
+    return _run_chat_legacy(payload=payload, db=db, settings=settings)
 
 
-@router.post("/chat/query", response_model=ChatResponse)
+@router.post("/chat/query", response_model=ChatQueryResponse)
 def chat_query(
     payload: ChatRequest,
     db: Session = Depends(get_db_session),
     settings: Settings = Depends(get_app_settings),
-) -> ChatResponse:
-    return _run_chat(payload=payload, db=db, settings=settings)
+) -> ChatQueryResponse:
+    repository = ArticuloRepository(db)
+    assistant = ComplianceAssistantService(
+        settings=settings,
+        repository=repository,
+    )
+    try:
+        return assistant.answer(payload=payload)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Error en pipeline de asistencia: {exc}") from exc
 

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     app_name: str = "TIF Normas Assistant API"
     app_env: str = "dev"
     app_version: str = "1.0.0"
+    app_log_level: str = "INFO"
     api_v1_prefix: str = "/api/v1"
 
     database_url: str = "postgresql+psycopg://tif:tif_password@db:5432/tif_normas"

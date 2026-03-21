@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 
 from app.repositories import ArticuloRecord, ArticuloRepository
@@ -26,22 +27,19 @@ SPANISH_STOPWORDS = {
     "articulo",
     "articulos",
     "segun",
-    "según",
     "esta",
     "este",
     "estos",
     "estas",
     "cual",
     "cuales",
-    "cuál",
-    "cuáles",
     "puede",
     "pueden",
     "debe",
     "deben",
 }
 
-TOKEN_RE = re.compile(r"[A-Za-z0-9áéíóúÁÉÍÓÚñÑüÜ]+")
+TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 @dataclass(slots=True)
@@ -56,13 +54,17 @@ class KeywordRetrievalService:
         self.repository = repository
 
     @staticmethod
-    def tokenize(text: str) -> list[str]:
-        tokens = TOKEN_RE.findall(text.lower())
+    def _strip_accents(text: str) -> str:
+        normalized = unicodedata.normalize("NFKD", text)
+        return "".join(char for char in normalized if not unicodedata.combining(char))
+
+    def tokenize(self, text: str) -> list[str]:
+        clean = self._strip_accents(text.lower())
+        tokens = TOKEN_RE.findall(clean)
         return [token for token in tokens if len(token) >= 3 and token not in SPANISH_STOPWORDS]
 
-    @staticmethod
-    def _score(articulo: ArticuloRecord, terms: list[str]) -> tuple[int, list[str]]:
-        haystack = f"{articulo.titulo} {articulo.contenido}".lower()
+    def _score(self, articulo: ArticuloRecord, terms: list[str]) -> tuple[int, list[str]]:
+        haystack = self._strip_accents(f"{articulo.titulo} {articulo.contenido}".lower())
         matched = [term for term in terms if term in haystack]
         score = sum(haystack.count(term) for term in terms)
         return score, matched
@@ -93,7 +95,7 @@ class KeywordRetrievalService:
             plain_results = [RetrievalResult(articulo=item, score=0, matched_terms=[]) for item in candidates]
             return terms, len(candidates), plain_results[:top_k]
 
-        ranked = []
+        ranked: list[RetrievalResult] = []
         for candidate in candidates:
             score, matched_terms = self._score(candidate, terms)
             ranked.append(

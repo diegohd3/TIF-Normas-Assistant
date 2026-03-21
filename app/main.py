@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,6 +9,10 @@ from app.api.router import api_router
 from app.core.config import get_settings
 
 settings = get_settings()
+logging.basicConfig(
+    level=getattr(logging, settings.app_log_level.upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 app = FastAPI(
     title=settings.app_name,
@@ -28,4 +34,3 @@ app.include_router(api_router)
 
 # Alias versionado para evolucionar sin romper clientes existentes
 app.include_router(api_router, prefix=settings.api_v1_prefix, include_in_schema=False)
-
